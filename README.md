@@ -35,8 +35,8 @@ The **VDM PlantUML Generator** is a high-performance ABAP tool designed to recur
 
 The tool is built to be environment-aware using the **Adapter Pattern**, but there are fundamental differences in how metadata is accessed:
 
-* **On-Premise:** Broader access to the ABAP Repository. Includes fallback logic to parse DDL source code via regex if the XCO API encounters unreleased or complex `UNION` views.
-* **Cloud (BTP / Public Edition):** Restricted to **Tier 1 (Cloud Optimized)** ABAP. The generator only interacts with "Released" entities or those within your own software components. Low-level DDIC table reads are prohibited.
+* **On-Premise:** Broader access to the ABAP Repository. Includes fallback logic to parse DDL source code via regex if the XCO API encounters unreleased or complex select statements like `UNIONs`.
+* **Cloud (BTP / Public Edition):** Restricted to **Tier 1 (Cloud Optimized)** ABAP. The generator only interacts with "Released (API Contract)" entities or those within your own software components. Low-level DDIC table reads are prohibited.
 
 ---
 

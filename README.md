@@ -123,7 +123,7 @@ Cloud (BTP / Public Edition): Restricted to Tier 1 (Cloud Optimized) ABAP. The g
 | `exclude_cds` | Table | Block list: These views / entities will be ignored by the generator. |
 
 ---
-### 6: Layout & Visual Formatting (`ty_format_options`)
+### 6: Layout & Visual Formatting (`ty_format_options`) ( IN DEVELOPMENT)
 Controls the PlantUML rendering engine's line routing and aesthetic styling.
 
 | Parameter | Type | Description |
@@ -140,11 +140,7 @@ Controls the PlantUML rendering engine's line routing and aesthetic styling.
 DATA(lo_gen) = NEW zcl_vdm_plantuml_generator( 
   selection = VALUE #(
     cds_name       = 'I_BUSINESSPARTNER'
-    format_options = VALUE #(
-      ortho      = abap_true  " Clean 90-degree routing
-      modern     = abap_true  " Rounded corners, no shadows
-      spaced_out = abap_true  " Maximum readability
-    )
+  
   ) 
 ).
 ```

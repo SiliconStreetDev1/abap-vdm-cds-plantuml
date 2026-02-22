@@ -3,6 +3,7 @@
 **Visualize your SAP CDS Virtual Data Model (VDM) hierarchies with ease.**
 
 The **VDM PlantUML Generator** is a ABAP tool designed to recursively discover and visualize CDS View relationships. It supports `ASSOCIATIONS`, `COMPOSITIONS`, or `INHERITANCE`, this tool parses your metadata via the XCO Framework to generate PlantUML code.
+<img width="2339" height="1672" alt="image" src="https://github.com/user-attachments/assets/0ad64a8e-b11d-4d72-9c71-c64c3d4b1895" />
 
 ---
 

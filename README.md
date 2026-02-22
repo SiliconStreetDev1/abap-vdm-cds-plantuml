@@ -38,7 +38,7 @@ The generator is designed for **inline usage**. You pass a `selection` structure
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `cds_name` | String | The root CDS view name used as the starting point. The engine typically moves **down** the hierarchy from here, unless `inheritance` is enabled, which triggers an **upward** discovery. |
-| `max_allowed_level` | Integer | Defines the recursion depth. This limits how many levels the engine will traverse across `Associations`, `Inheritance` (Upward), and `Compositions`. |
+| `max_allowed_level` | Integer | Defines the recursion depth. This limits how many levels the engine will traverse across `Associations`, `Inheritance` (Upward), and `Compositions`. Will default to 1 if not set|
 
 ### 1. Basic Generation with Granular Toggles
 

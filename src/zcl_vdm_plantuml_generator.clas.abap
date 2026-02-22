@@ -382,12 +382,17 @@ CLASS ZCL_VDM_PLANTUML_GENERATOR IMPLEMENTATION.
     " Make sure starting CDS and all filter lists are Uppercase for consistent comparison
     me->selection-cds_name  = to_upper(  me->selection-cds_name ).
 
-    LOOP AT me->selection-include_cds ASSIGNING FIELD-SYMBOL(<inc>).
-      <inc>-cds_name = to_upper( <inc>-cds_name ).
+    " We need at least one level!
+    IF me->selection-max_allowed_level = 0.
+      me->selection-max_allowed_level = 1.
+    ENDIF.
+
+    LOOP AT me->selection-include_cds ASSIGNING FIELD-SYMBOL(<include>).
+      <include>-cds_name = to_upper( <include>-cds_name ).
     ENDLOOP.
 
-    LOOP AT me->selection-exclude_cds ASSIGNING FIELD-SYMBOL(<exc>).
-      <exc>-cds_name = to_upper( <exc>-cds_name ).
+    LOOP AT me->selection-exclude_cds ASSIGNING FIELD-SYMBOL(<exclude>).
+      <exclude>-cds_name = to_upper( <exclude>-cds_name ).
     ENDLOOP.
   ENDMETHOD.
 ENDCLASS.

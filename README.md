@@ -41,7 +41,7 @@ Discovery and Lines are split into granular toggles. This allows you to find a p
 DATA(lt_plantuml) = NEW zcl_vdm_plantuml_generator( 
   selection = VALUE #(
     cds_name          = 'I_BUSINESSPARTNER'
-    max_allowed_level = 3
+    max_allowed_level = 2
     base              = abap_true " Show underlying tables/views
     keys              = abap_true " Show key fields with *
     fields            = abap_true " Show non-key fields

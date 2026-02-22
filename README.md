@@ -34,68 +34,160 @@ Markdown
 
 The generator is designed for **inline usage**. You pass a `selection` structure to the constructor and call the `generate()` method.
 
+# 🛠 Primary Parameters
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `cds_name` | String | The root CDS view name used as the starting point. The engine typically moves **down** the hierarchy from here, unless `inheritance` is enabled, which triggers an **upward** discovery. |
+| `max_allowed_level` | Integer | Defines the recursion depth. This limits how many levels the engine will traverse across `Associations`, `Inheritance` (Upward), and `Compositions`. |
+
 ### 1. Basic Generation with Granular Toggles
-Discovery and Lines are split into granular toggles. This allows you to find a parent CDS (Discovery) but choose not to draw the inheritance line (Lines) to keep the diagram clean.
+
+The engine splits relationship logic into two granular toggle sets. However, to simplify the experience, **enabling a relationship line automatically triggers the discovery of that target.**
+
+| Component | Logic | Description |
+| :--- | :--- | :--- |
+| **Discovery** | **Manual Search** | Used when you want to find and display entities in the diagram *without* drawing relationship arrows. This is ideal for "Landscape" views where you want to see the entities but avoid "Spaghetti" lines. |
+| **Lines** | **Auto-Discovery** | When a specific line type is enabled (e.g., `compositions`), the engine **automatically enables** discovery for that type. You do not need to manually toggle `discovery` if you intend to draw the lines. |
+
+## Discovery Only
+```abap
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
+  selection = VALUE #(
+    cds_name          = 'I_BUSINESSPARTNER'
+
+    max_allowed_level = 2
+
+    " Discovery: Which entities to find via recursion ( Optional if Lines is also used for a specific relationship type )
+    discovery = VALUE #(
+      inheritance  = abap_true
+      associations = abap_true
+      compositions = abap_true
+     )
+    )
+  )->generate( ).
+```
+<img width="1300" height="530" alt="image" src="https://github.com/user-attachments/assets/b978ba6e-c649-46c7-88a7-176ef5d69fd9" />
+
+## Lines Only
+```abap
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
+  selection = VALUE #(
+    cds_name          = 'I_BUSINESSPARTNER'
+
+    max_allowed_level = 2
+
+  " Lines:  Which entities to find via recursion and draw relationship lines
+  Lines = VALUE #(
+      inheritance  = abap_true
+      associations = abap_true
+      compositions = abap_true
+     )
+    )
+  )->generate( ).
+```
+<img width="1700" height="250" alt="image" src="https://github.com/user-attachments/assets/351ed75d-2049-402d-bbfd-5aad3a9d7973" />
+
+### 2. Advanced Filtering: Inclusions & Exclusions
+You can precisely control which entities appear in your visualization using inclusion and exclusion rules. To prevent accidental empty diagrams, the **root `cds_name` is always included by default**, even if it satisfies a broader exclusion rule.
+
+Typically, you will use either an inclusion or an exclusion strategy, rather than combining both:
+
+* **Inclusion Strategy:** Use this when you want to focus strictly on a specific subset of views. Only the entities explicitly listed will be rendered.
+* **Exclusion Strategy:** Use this to "clean up" a diagram by hiding known noise, such as technical mapping entities.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `include_cds` | Table | **Whitelist:** Only the CDS views specified in this table will be processed and rendered in the diagram. |
+| `exclude_cds` | Table | **Blacklist:** These CDS views will be ignored by the engine and omitted from the visualization. |
+
+ABAP (Include)
 
 ```abap
-DATA(lt_plantuml) = NEW zcl_vdm_plantuml_generator( 
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
   selection = VALUE #(
     cds_name          = 'I_BUSINESSPARTNER'
     max_allowed_level = 2
-    base              = abap_true " Show underlying tables/views
-    keys              = abap_true " Show key fields with *
-    fields            = abap_true " Show non-key fields
-    associations_fields = abap_true " List associations names inside the box
-    
-    " Discovery: Which entities to find via recursion
-    discovery = VALUE #( 
-      inheritance  = abap_true 
-      associations = abap_true 
-      compositions = abap_true 
-    )
+    lines  = VALUE #( associations  = abap_true  )
 
-    " Lines: Which arrows to actually draw between boxes
-    lines = VALUE #( 
-      inheritance  = abap_true 
-      associations = abap_true 
-      compositions = abap_true 
-    )
-  ) 
+    " INCLUSION: ONLY expand these views into boxes
+     include_cds = VALUE #(  ( cds_name =  'I_BPDATACONTROLLER'  )
+                             ( cds_name =  'I_BPRELATIONSHIP_2' ) )
+  )
 )->generate( ).
 ```
 
-### 2. Advanced Filtering: Inclusions & Exclusions
-Control the scope of discovery. The root cds_name is always included by default to ensure the diagram generates, even if it matches an exclusion rule.
-
-ABAP
+ABAP (Include)
 ```abap
-DATA(lt_plantuml) = NEW zcl_vdm_plantuml_generator( 
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
   selection = VALUE #(
     cds_name          = 'I_BUSINESSPARTNER'
-    max_allowed_level = 5
-    " INCLUSION: ONLY expand these views into boxes
-    include_cds = VALUE #( ( cds_name = 'I_BPDATACONTROLLER' ) 
-                           ( cds_name = 'I_BPCUSTOMER' ) )
-    " EXCLUSION: Block these views from discovery entirely
-    exclude_cds = VALUE #( ( cds_name = 'I_SADL_MAPPING' ) )
-  ) 
+    max_allowed_level = 2
+    lines  = VALUE #( associations  = abap_true  )
+
+    " Exclude these views from selections
+     exclude_cds = VALUE #(  ( cds_name =  'I_BPDATACONTROLLER'  )
+                             ( cds_name =  'I_BPRELATIONSHIP_2' ) )
+  )
 )->generate( ).
 ```
+
 
 ### 3. Custom Development Filter (Z/Y Namespace)
 This mode hides standard SAP noise by only rendering entity boxes for your custom developments.
 
 ```abap
-DATA(lt_plantuml) = NEW zcl_vdm_plantuml_generator( 
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
   selection = VALUE #(
-    cds_name                 = 'Z_MY_CUSTOM_ROOT'
-    max_allowed_level        = 3
-    custom_developments_only = abap_true " Only select entities starting with Z* or Y*
-    " Force Render: Shows entities as classes even if they are not part of the levels allowed. Only the name will be displatyed
-    force_render_all_relationships = abap_true 
+    cds_name                 = 'ZR_BloxUIHeaderTP' "My Custom RAP Model
+    max_allowed_level        = 5 "Lets go 5 levels down
+    lines  = VALUE #( compositions  = abap_true  associations = abap_true ) " we want compositions and associations remember the association up is a composition but technically a associations so you must add it
+    custom_developments_only = abap_true " Only select entities starting with Z* or Y* 
+  )
+)->generate( ).
+```
+<img width="290" height="605" alt="image" src="https://github.com/user-attachments/assets/8d38059b-21e2-42c6-a0f1-03a0d619ff26" />
+
+### 4. 🧱 Field Rendering & Association Mapping
+
+The generator provides granular control over the internal structure of the entity boxes. This allows you to toggle between a high-level architectural view and a detailed technical data model.
+
+### Field Type Logic
+
+| Field Type | Toggle | Visual Representation |
+| :--- | :--- | :--- |
+| **Key Fields** | `keys` | Rendered at the top of the box with a `*` prefix to denote primary identification. |
+| **Normal Fields** | `fields` | Standard non-key attributes listed below the keys. |
+| **Association Fields** | `associations_fields` | Lists the names of defined associations within the entity box itself. |
+
+## 🎯 Relationship Line Anchoring
+
+The behavior of relationship lines (arrows) changes based on your `associations_fields` setting to ensure maximum clarity:
+
+1. **Standard Mode (`associations_fields = abap_false`):** Relationship lines are drawn from the **border of the source box** to the border of the target box. This is the cleanest view for high-level VDM overviews.
+2. **Detailed Mode (`associations_fields = abap_true`):** When associations are listed inside the box, the generator anchors the relationship lines **directly to the specific field name** within the box. 
+
+
+
+> **Why use Detailed Mode?** Mapping lines directly to association fields is invaluable when a single CDS view has multiple associations to the same target view (e.g., `_CreatedByUser` and `_LastChangedByUser` both pointing to `I_User`). It explicitly shows which field triggers which relationship.
+
+---
+
+### Implementation Example
+
+```abap
+DATA(plantuml) = NEW zcl_vdm_plantuml_generator( 
+  selection = VALUE #(
+    cds_name            = 'I_BUSINESSPARTNER'
+    keys                = abap_true
+    fields              = abap_true
+    max_allowed_level        = 1
+    associations_fields = abap_true " Lines will now point to internal fields
+    lines               = VALUE #( associations = abap_true )
   ) 
 )->generate( ).
 ```
+<img width="150" height="1360" alt="image" src="https://github.com/user-attachments/assets/07e44e3a-4bda-4754-b6d9-a4fa1a84f905" />
+
 ☁️ Cloud (BTP/ABAP Cloud) vs. On-Premise
 The tool utilizes the Adapter Pattern to handle environment differences:
 
@@ -104,7 +196,7 @@ On-Premise: Broader access to the ABAP Repository. Includes fallback logic to pa
 Cloud (BTP / Public Edition): Restricted to Tier 1 (Cloud Optimized) ABAP. The generator only interacts with "Released" entities or those within your own software components. Low-level DDIC table reads (like DDDLSVRC) are prohibited.
 
 
-### 4: Parameter Reference 
+### 6: Parameter Reference 
 
 ## ⚙️ Parameter Reference
 
@@ -158,6 +250,9 @@ DATA(plantuml)  = NEW zcl_vdm_plantuml_generator(
    )
 )->generate( ).
 ```
+<img width="150" height="1250" alt="image" src="https://github.com/user-attachments/assets/22566e09-0542-4954-afcc-8349d797126e" />
+
+
 ## 🗺 Roadmap
 
 * **Fiori Application**: We are planning a full-stack SAP Fiori application to dynamically generate and display PlantUML diagrams within the SAP environment.

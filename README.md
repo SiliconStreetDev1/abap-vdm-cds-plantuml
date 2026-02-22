@@ -1,4 +1,4 @@
-# VDM PlantUML Generator 🚀
+# ABAP VDM / CDS PlantUML Generator 🚀
 
 **Visualize your SAP CDS Virtual Data Model (VDM) hierarchies with ease.**
 

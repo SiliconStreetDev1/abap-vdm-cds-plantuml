@@ -27,8 +27,7 @@ CLASS zcl_vdm_plantuml_entity DEFINITION
              polyline   TYPE abap_bool,
              spaced_out TYPE abap_bool, " Increase gaps between entities
              staggered  TYPE abap_bool, " Force lines to different sides (Left/Right)
-             modern     TYPE abap_bool, " Remove shadows and round corners
-             no_labels  TYPE abap_bool, " Hide cardinality for cleaner look
+             modern type abap_bool, " Use modern styling with round corners and no shadows
            END OF ty_format_options.
 
     METHODS build RETURNING VALUE(plantuml) TYPE string_table.

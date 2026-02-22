@@ -11,28 +11,27 @@
 "! 4. MODIFICATIONS: Any modifications remain subject to this license.
 "!
 "! FOR COMMERCIAL LICENSING INQUIRIES: admin@siliconst.co.nz
+class ZCL_VDM_PLANTUML_GENERATOR definition
+  public
+  final
+  create public .
 
-CLASS zcl_vdm_plantuml_generator DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+public section.
 
-  PUBLIC SECTION.
-
-    TYPES:
-      BEGIN OF ty_granular_toggle,
+  types:
+    BEGIN OF ty_granular_toggle,
         inheritance  TYPE abap_bool,
         associations TYPE abap_bool,
         compositions TYPE abap_bool,
-      END OF ty_granular_toggle.
-
-TYPES: BEGIN OF ty_cds_name_filter,
+      END OF ty_granular_toggle .
+  types:
+    BEGIN OF ty_cds_name_filter,
              cds_name TYPE sxco_cds_object_name,
-           END OF ty_cds_name_filter.
-    TYPES tty_cds_name_filter TYPE TABLE OF ty_cds_name_filter WITH DEFAULT KEY.
-
-    TYPES:
-      BEGIN OF ty_selection,
+           END OF ty_cds_name_filter .
+  types:
+    tty_cds_name_filter TYPE TABLE OF ty_cds_name_filter WITH DEFAULT KEY .
+  types:
+    BEGIN OF ty_selection,
         cds_name                       TYPE sxco_cds_object_name,
         "Discovery (Which entities to find via recursion)
 
@@ -68,9 +67,8 @@ TYPES: BEGIN OF ty_cds_name_filter,
         exclude_cds                    TYPE tty_cds_name_filter,
 
       END OF ty_selection .
-
-    TYPES:
-      BEGIN OF ty_cds_relationship,
+  types:
+    BEGIN OF ty_cds_relationship,
         target           TYPE sxco_cds_object_name,
         target_uppercase TYPE sxco_cds_object_name,
         alias            TYPE sxco_ddef_alias_name,
@@ -79,11 +77,10 @@ TYPES: BEGIN OF ty_cds_name_filter,
         is_parent        TYPE abap_bool,
         cardinality      TYPE if_xco_cds_association_content=>ts_cardinality,
       END OF ty_cds_relationship .
-    TYPES:
-      tty_cds_relationship TYPE TABLE OF ty_cds_relationship WITH DEFAULT KEY .
-
-    TYPES:
-      BEGIN OF ty_cds_hierarchy,
+  types:
+    tty_cds_relationship TYPE TABLE OF ty_cds_relationship WITH DEFAULT KEY .
+  types:
+    BEGIN OF ty_cds_hierarchy,
         cds_name_uppercase TYPE sxco_cds_object_name,
         sources            TYPE TABLE OF sxco_cds_object_name WITH DEFAULT KEY,
         child_cds_name     TYPE sxco_cds_object_name,
@@ -95,57 +92,59 @@ TYPES: BEGIN OF ty_cds_name_filter,
         compositions       TYPE sxco_t_cds_compositions,
         relationships      TYPE tty_cds_relationship,
       END OF ty_cds_hierarchy .
-    TYPES:
-      tty_cds_hierarchy TYPE SORTED TABLE OF ty_cds_hierarchy WITH NON-UNIQUE KEY index .
+  types:
+    tty_cds_hierarchy TYPE SORTED TABLE OF ty_cds_hierarchy WITH NON-UNIQUE KEY index .
 
-    CONSTANTS:
-      BEGIN OF c_relation_type,
+  constants:
+    BEGIN OF c_relation_type,
         association TYPE zvdm_plantuml_cds_relat_type VALUE 'A',
         composition TYPE zvdm_plantuml_cds_relat_type VALUE 'C',
         inheritance TYPE  zvdm_plantuml_cds_relat_type VALUE 'I',
       END OF c_relation_type .
+  data:
+    relationships TYPE TABLE OF ty_cds_relationship WITH DEFAULT KEY .
 
-    DATA hierarchies TYPE tty_cds_hierarchy .
-    DATA selection TYPE ty_selection .
-    DATA:
-      relationships TYPE TABLE OF ty_cds_relationship WITH DEFAULT KEY .
-    DATA messages TYPE sxco_t_messages .
+  methods CONSTRUCTOR
+    importing
+      !SELECTION type TY_SELECTION
+      !FORMAT type ZCL_VDM_PLANTUML_ENTITY=>TY_FORMAT_OPTIONS optional
+    raising
+      ZCX_VDM_PLANTUML_GENERATOR .
+  methods GENERATE
+    returning
+      value(PLANTUML) type STRING_TABLE .
+  methods GET_MESSAGES
+    returning
+      value(MESSAGES) type SXCO_T_MESSAGES .
+protected section.
 
-    METHODS constructor
-      IMPORTING
-        selection TYPE ty_selection
-      RAISING
-        zcx_vdm_plantuml_generator .
-    METHODS generate
-      RETURNING
-        VALUE(plantuml) TYPE string_table .
-    METHODS get_messages
-      RETURNING
-        VALUE(messages) TYPE sxco_t_messages .
-  PROTECTED SECTION.
+  data HIERARCHIES type TTY_CDS_HIERARCHY .
+  data SELECTION type TY_SELECTION .
+  data MESSAGES type SXCO_T_MESSAGES .
+  data XCO_ADAPTER type ref to ZIF_VDM_PLANTUML_XCO_ADAPTER .
+  data FORMAT type ZCL_VDM_PLANTUML_ENTITY=>TY_FORMAT_OPTIONS .
 
-    DATA xco_adapter TYPE REF TO zif_vdm_plantuml_xco_adapter .
+  methods _ITERATE
+    importing
+      !CDS_NAME type SXCO_CDS_OBJECT_NAME
+      !CHILD_CDS_NAME type SXCO_CDS_OBJECT_NAME optional
+      !CURRENT_LEVEL type INT4 .
+  methods _VALIDATE_SELECTION
+    raising
+      ZCX_VDM_PLANTUML_GENERATOR .
+  methods _INITIALIZE_ON_GENERATE .
+  methods _INITIALIZE_XCO_ADAPTER
+    raising
+      ZCX_VDM_PLANTUML_GENERATOR .
+  methods _IS_CLOUD
+    returning
+      value(IS_CLOUD) type ABAP_BOOL .
+  methods _DETERMINE_RELATIONSHIPS
+    changing
+      !CS_HIERARCHY type TY_CDS_HIERARCHY .
+private section.
 
-    METHODS _iterate
-      IMPORTING
-        cds_name       TYPE sxco_cds_object_name
-        child_cds_name TYPE sxco_cds_object_name OPTIONAL
-        current_level  TYPE int4 .
-    METHODS _validate_selection
-      RAISING
-        zcx_vdm_plantuml_generator .
-    METHODS _initialize_on_generate .
-    METHODS _initialize_xco_adapter
-      RAISING
-        zcx_vdm_plantuml_generator .
-    METHODS _is_cloud
-      RETURNING
-        VALUE(is_cloud) TYPE abap_bool .
-    METHODS _determine_relationships
-      CHANGING
-        cs_hierarchy TYPE ty_cds_hierarchy .
-  PRIVATE SECTION.
-    METHODS _initialize_selection.
+  methods _INITIALIZE_SELECTION .
 ENDCLASS.
 
 
@@ -156,6 +155,7 @@ CLASS ZCL_VDM_PLANTUML_GENERATOR IMPLEMENTATION.
   METHOD constructor.
 
     me->selection = selection. " Set Selection for later usage
+    me->format = format. " Set Formats
 
     " Initialize Selection with default values and also do any conversions needed,
     "     like upper case etc, so that we have a consistent format for the rest of the program
@@ -183,7 +183,7 @@ CLASS ZCL_VDM_PLANTUML_GENERATOR IMPLEMENTATION.
     " Generate PlantUML
     plantuml = NEW zcl_vdm_plantuml_entity( hierarchies = hierarchies
                                             selection   = selection
-                                            format = VALUE #(  polyline  = abap_true )
+                                            format = format
                                             )->build( ).
   ENDMETHOD.
 

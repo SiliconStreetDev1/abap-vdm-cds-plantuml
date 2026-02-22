@@ -104,8 +104,8 @@ On-Premise: Broader access to the ABAP Repository. Includes fallback logic to pa
 Cloud (BTP / Public Edition): Restricted to Tier 1 (Cloud Optimized) ABAP. The generator only interacts with "Released" entities or those within your own software components. Low-level DDIC table reads (like DDDLSVRC) are prohibited.
 
 
-### BLOCK 4: Parameter Reference & Roadmap
-markdown
+### 4: Parameter Reference & Roadmap
+
 ## ⚙️ Parameter Reference
 
 | Parameter | Type | Description |

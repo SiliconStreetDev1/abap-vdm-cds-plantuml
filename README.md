@@ -64,7 +64,7 @@ DATA(lt_plantuml) = NEW zcl_vdm_plantuml_generator(
 )->generate( ).
 ```
 
-2. Advanced Filtering: Inclusions & Exclusions
+### 2. Advanced Filtering: Inclusions & Exclusions
 Control the scope of discovery. The root cds_name is always included by default to ensure the diagram generates, even if it matches an exclusion rule.
 
 ABAP
@@ -104,7 +104,7 @@ On-Premise: Broader access to the ABAP Repository. Includes fallback logic to pa
 Cloud (BTP / Public Edition): Restricted to Tier 1 (Cloud Optimized) ABAP. The generator only interacts with "Released" entities or those within your own software components. Low-level DDIC table reads (like DDDLSVRC) are prohibited.
 
 
-### 4: Parameter Reference & Roadmap
+### 4: Parameter Reference 
 
 ## ⚙️ Parameter Reference
 
@@ -123,7 +123,31 @@ Cloud (BTP / Public Edition): Restricted to Tier 1 (Cloud Optimized) ABAP. The g
 | `exclude_cds` | Table | Block list: These views / entities will be ignored by the generator. |
 
 ---
+### 6: Layout & Visual Formatting (`ty_format_options`)
+Controls the PlantUML rendering engine's line routing and aesthetic styling.
 
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `ortho` | Boolean | Forces all relationship lines to use **90-degree angles**. Prevents diagonal "spaghetti" lines in complex models. |
+| `polyline` | Boolean | Uses **segmented, angled lines**. Provides flexible routing in dense clusters to avoid overlapping boxes. |
+| `spaced_out` | Boolean | Significantly **increases padding** between entities. Essential for views with many fields to maintain readability. |
+| `staggered` | Boolean | Forces lines to enter/exit from the **Left and Right sides** of the box to prevent bunching at the top or bottom. |
+| `modern` | Boolean | Applies **modern styling**: rounded corners, flat design, and removes legacy drop-shadows. |
+
+### Usage Example
+
+```abap
+DATA(lo_gen) = NEW zcl_vdm_plantuml_generator( 
+  selection = VALUE #(
+    cds_name       = 'I_BUSINESSPARTNER'
+    format_options = VALUE #(
+      ortho      = abap_true  " Clean 90-degree routing
+      modern     = abap_true  " Rounded corners, no shadows
+      spaced_out = abap_true  " Maximum readability
+    )
+  ) 
+).
+```
 ## 🗺 Roadmap
 
 * **Fiori Application**: We are planning a full-stack SAP Fiori application to dynamically generate and display PlantUML diagrams within the SAP environment.

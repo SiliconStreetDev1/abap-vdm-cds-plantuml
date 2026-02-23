@@ -139,13 +139,14 @@ This mode hides standard SAP noise by only rendering entity boxes for your custo
 DATA(plantuml) = NEW zcl_vdm_plantuml_generator(
   selection = VALUE #(
     cds_name                 = 'ZR_BloxUIHeaderTP' "My Custom RAP Model
-    max_allowed_level        = 5 "Lets go 5 levels down
+    max_allowed_level        = 6 "Lets go 6 levels down
     lines  = VALUE #( compositions  = abap_true  associations = abap_true ) " we want compositions and associations remember the association up is a composition but technically a associations so you must add it
     custom_developments_only = abap_true " Only select entities starting with Z* or Y* 
   )
 )->generate( ).
 ```
-<img width="290" height="605" alt="image" src="https://github.com/user-attachments/assets/8d38059b-21e2-42c6-a0f1-03a0d619ff26" />
+<img width="233" height="1050" alt="image" src="https://github.com/user-attachments/assets/6199c0ea-85aa-4c44-9735-75e6d65a847d" />
+
 
 ### 4. 🧱 Field Rendering & Association Mapping
 
@@ -153,7 +154,7 @@ The generator provides granular control over the internal structure of the entit
 
 ### Field Type Logic
 
-| Field Type | Toggle | Visual Representation |
+| Field Type | Parameter | Visual Representation |
 | :--- | :--- | :--- |
 | **Key Fields** | `keys` | Rendered at the top of the box with a `*` prefix to denote primary identification. |
 | **Normal Fields** | `fields` | Standard non-key attributes listed below the keys. |
@@ -250,7 +251,8 @@ DATA(plantuml)  = NEW zcl_vdm_plantuml_generator(
    )
 )->generate( ).
 ```
-<img width="150" height="1250" alt="image" src="https://github.com/user-attachments/assets/22566e09-0542-4954-afcc-8349d797126e" />
+<img width="580" height="1125" alt="image" src="https://github.com/user-attachments/assets/9922e5c8-dd5b-4e84-a6a7-f3db4bcdce3c" />
+
 
 
 ## 🗺 Roadmap

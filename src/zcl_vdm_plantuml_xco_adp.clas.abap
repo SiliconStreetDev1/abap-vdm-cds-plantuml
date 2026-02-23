@@ -1,4 +1,3 @@
-"! <p class="shorttext synchronized">VDM PlantUML Generator</p>
 "! © 2026 Silicon Street Limited. All Rights Reserved.
 "!
 "! USAGE TERMS:
@@ -113,7 +112,7 @@ CLASS ZCL_VDM_PLANTUML_XCO_ADP IMPLEMENTATION.
           WHEN OTHERS. CLEAR sources.
         ENDCASE.
       CATCH cx_xco_runtime_exception.
-        " Fallback to manual Regex parsing if XCO cannot handle the view (e.g., UNIONs)
+        " Fallback to manual Regex parsing if XCO cannot handle the view (e.g., UNIONs,JOINS)
         DATA(lv_source_code) = get_ddl_source( cds_name ).
         IF lv_source_code IS NOT INITIAL.
           DATA(lt_m) = extract_regex_matches( pattern = `(?i)\b(?:from|join)\s+([a-zA-Z0-9_/]+)` text = lv_source_code ).
@@ -209,6 +208,7 @@ CLASS ZCL_VDM_PLANTUML_XCO_ADP IMPLEMENTATION.
     IF hasparent = abap_true. "If its a Parent Relationship we only want to show the cardinality on the child side
       cardinality-min = 1.
       cardinality-max = 1.
+      return.
     ENDIF.
 
     " Only process if the current cardinality is 0..1
@@ -216,43 +216,44 @@ CLASS ZCL_VDM_PLANTUML_XCO_ADP IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lv_source) = get_ddl_source( cds_name ).
-    IF lv_source IS INITIAL OR assocname IS INITIAL.
+    "Get DDL Source
+    DATA(source) = get_ddl_source( cds_name ).
+    IF source IS INITIAL OR assocname IS INITIAL.
       RETURN.
     ENDIF.
 
     " 1. Locate the specific association alias
-    FIND FIRST OCCURRENCE OF assocname IN lv_source IGNORING CASE MATCH OFFSET DATA(lv_name_off).
+    FIND FIRST OCCURRENCE OF assocname IN source IGNORING CASE MATCH OFFSET DATA(name_off).
     IF sy-subrc <> 0.
       RETURN.
     ENDIF.
 
     " 2. Look backwards to find the preceding 'ASSOCIATION' keyword
-    DATA(lv_prefix) = substring( val = lv_source len = lv_name_off ).
-    DATA(lv_start_off) = find( val = to_upper( lv_prefix ) sub = 'ASSOCIATION' occ = -1 ).
+    DATA(prefix) = substring( val = source len = name_off ).
+    DATA(start_off) = find( val = to_upper( prefix ) sub = 'ASSOCIATION' occ = -1 ).
 
-    IF lv_start_off < 0.
+    IF start_off < 0.
       RETURN.
     ENDIF.
 
     " 3. Isolate the line fragment
-    DATA(lv_line) = substring( val = lv_source off = lv_start_off len = lv_name_off - lv_start_off + strlen( assocname ) ).
+    DATA(line) = substring( val = source off = start_off len = name_off - start_off + strlen( assocname ) ).
 
     " 4. Prepare the association name for the regex (manually escape forward slashes if present)
-    DATA(lv_esc_name) = replace( val = assocname sub = '/' with = '\/' occ = 0 ).
-    DATA(lv_pattern) = `(?i)association\s*(?:\[([^\]]*)\])?[^;]*?\bas\s+` && lv_esc_name && `\b`.
+    DATA(esc_name) = replace( val = assocname sub = '/' with = '\/' occ = 0 ).
+    DATA(pattern) = `(?i)association\s*(?:\[([^\]]*)\])?[^;]*?\bas\s+` && esc_name && `\b`.
 
-    DATA(lt_m) = extract_regex_matches( pattern = lv_pattern text = lv_line ).
+    DATA(matches) = extract_regex_matches( pattern = pattern text = line ).
 
-    IF lines( lt_m ) > 0.
-      DATA(ls_match) = lt_m[ 1 ].
+    IF lines( matches ) > 0.
+      DATA(match) = matches[ 1 ].
 
       " 5. Check for explicit [ 1 ]
-      IF lines( ls_match-submatches ) > 0 AND ls_match-submatches[ 1 ]-length > 0.
-        DATA(s) = ls_match-submatches[ 1 ].
-        DATA(lv_val) = condense( val = substring( val = lv_line off = s-offset len = s-length ) from = ` ` to = `` ).
+      IF lines( match-submatches ) > 0 AND match-submatches[ 1 ]-length > 0.
+        DATA(s) = match-submatches[ 1 ].
+        DATA(val) = condense( val = substring( val = line off = s-offset len = s-length ) from = ` ` to = `` ).
 
-        IF lv_val = '1'.
+        IF val = '1'.
           cardinality-min = 1.
           cardinality-max = 1.
         ENDIF.

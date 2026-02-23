@@ -83,7 +83,6 @@ public section.
     BEGIN OF ty_cds_hierarchy,
         cds_name_uppercase TYPE sxco_cds_object_name,
         sources            TYPE TABLE OF sxco_cds_object_name WITH DEFAULT KEY,
-        child_cds_name     TYPE sxco_cds_object_name,
         union              TYPE abap_bool,
         alias              TYPE string,
         index              TYPE int4,
@@ -231,6 +230,9 @@ CLASS ZCL_VDM_PLANTUML_GENERATOR IMPLEMENTATION.
 
 
   METHOD _iterate.
+
+" Iterate Through CDS Hierachy
+
     TRY.
         DATA(cds_name_upper) = to_upper( cds_name ).
 
@@ -239,14 +241,14 @@ CLASS ZCL_VDM_PLANTUML_GENERATOR IMPLEMENTATION.
           RETURN.
         ENDIF.
 
-        " Level depth guard
+        " Level depth guard ( Exit when Limit is Met )
         IF current_level > selection-max_allowed_level.
           RETURN.
         ENDIF.
 
+        " Filters Inclusion / Exclusion / Namespace
 
-        " FILTER LOGIC: Inclusion / Exclusion / Namespace
-        IF cds_name_upper  <> selection-cds_name.
+        IF cds_name_upper  <> selection-cds_name. " Ignore Exclude and Include if its the Selection CDS ( So Our Parent doesn't get filtered out before we even start )
 
           " 1. Exclusion List (Skip if specifically excluded)
           IF selection-exclude_cds IS NOT INITIAL

@@ -276,8 +276,8 @@ CLASS ZCL_VDM_PLANTUML_ENTITY IMPLEMENTATION.
           ENDIF.
         ENDIF.
 
-        " 2. GRANULAR LINE TOGGLE CHECK
-        " We only skip drawing the arrow if the line toggle is explicitly false.
+        " 2. Granular Line Check
+        " Skip if not rendering this relationship type based on user selection
         CASE <relationship>-type.
           WHEN zcl_vdm_plantuml_generator=>c_relation_type-association.
             IF selection-lines-associations = abap_false. CONTINUE. ENDIF.

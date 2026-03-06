@@ -109,8 +109,8 @@ The behavior of relationship lines (arrows) changes based on your `associations_
 
 ### 1. Basic Generation with Granular Toggles
 The engine splits relationship logic into two granular toggle sets:
-* **Discovery (Manual Search):** Used when you want to find and display entities in the diagram **without** drawing relationship arrows (Landscape mode).
-* **Lines (Auto-Discovery):** When a specific line type is enabled, the engine **automatically enables** discovery for that type.
+* **Discovery:** Used when you want to find and display entities in the diagram **without** drawing relationship arrows (Landscape mode).
+* **Lines:** When a specific line type is enabled, the engine **automatically enables** discovery for that type.
 
 **Discovery Only (Entities without lines):**
 ```abap
@@ -125,6 +125,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="1774" height="731" alt="image" src="https://github.com/user-attachments/assets/8712e849-8080-4314-a691-a6d70c2fda03" />
 
 **Lines Only (Auto-discovers and draws lines):**
 ```abap
@@ -139,6 +140,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="4705" height="432" alt="image" src="https://github.com/user-attachments/assets/be544b0f-41a8-498e-a7de-f9b522ab7f27" />
 
 ### 2. Advanced Filtering: Inclusions & Exclusions
 To prevent accidental empty diagrams, the root `cds_name` is always included by default.
@@ -159,6 +161,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="357" height="303" alt="image" src="https://github.com/user-attachments/assets/598bdf6d-ca15-45db-a7e8-c3c8126adeab" />
 
 **Exclusion Strategy:**
 ```abap
@@ -176,6 +179,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="16162" height="1104" alt="image" src="https://github.com/user-attachments/assets/45164152-d92d-43f6-ae63-13410fb38108" />
 
 ### 3. Custom Development Filter (Z/Y Namespace)
 Hides standard SAP noise by only rendering entity boxes for your custom developments.
@@ -193,59 +197,57 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="855" height="1770" alt="image" src="https://github.com/user-attachments/assets/86bf9ce6-c0bb-4412-b428-27f031f9ade5" />
 
 ### 4. The "Kitchen Sink" / Full Layout Config (PlantUML)
 Generates a highly detailed, modern PlantUML diagram showing absolutely everything.
 
 ```abap
-DATA(lo_config) = VALUE zif_vdm_diagram_renderer=>ty_render_config(
-  layout_direction = 'TB'
-  routing_style    = 'ORTHO'  " Clean 90-degree routing
-  theme            = 'MODERN' " Rounded corners, no shadows
-  spacing          = 'WIDE'   " Maximum readability
+DATA(format) = VALUE zcl_vdm_diagram_plantuml=>ty_format(
+    ortho = abap_false
 ).
 
-DATA(lo_renderer) = NEW zcl_vdm_diagram_plantuml( config = lo_config ).
+DATA(lo_renderer) = NEW zcl_vdm_diagram_plantuml( format ).
 
 DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   renderer  = lo_renderer
   selection = VALUE #(
-    cds_name                       = 'ZI_SALESORDER'
+    cds_name                       = 'ZR_BloxUIHeaderTP'
+    max_allowed_level = 3
     keys                           = abap_true
     fields                         = abap_true
     base                           = abap_true
-    associations_fields            = abap_true 
+    associations_fields            = abap_true
     lines-associations             = abap_true
     lines-compositions             = abap_true
     lines-inheritance              = abap_true
-    force_render_all_relationships = abap_false 
+    force_render_all_relationships = abap_false
   )
 )->generate( ).
 ```
+<img width="665" height="1130" alt="image" src="https://github.com/user-attachments/assets/3dbbf43f-06d6-4f29-a3e4-b6ce34f6f9af" />
 
 ### 5. The High-Level Architecture (Mermaid.js)
 Strips away noise, hiding fields and base tables. Perfect for GitHub Markdown.
 
 ```abap
-DATA(lo_config) = VALUE zif_vdm_diagram_renderer=>ty_render_config(
-  layout_direction = 'LR' " Left to Right looks better for high-level flows
-).
-
-DATA(lo_renderer) = NEW zcl_vdm_diagram_mermaid( config = lo_config ).
+DATA(lo_renderer) = NEW zcl_vdm_diagram_d2( ).
 
 DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   renderer  = lo_renderer
   selection = VALUE #(
-    cds_name                       = 'ZI_SALESORDER'
-    keys                           = abap_false  
-    fields                         = abap_false  
-    base                           = abap_false  
+    cds_name                       = 'I_BPCurrentDefaultAddress'
+    keys                           = abap_false
+    max_allowed_level = 2
+    fields                         = abap_true
+    base                           = abap_true
     lines-associations             = abap_true
     lines-compositions             = abap_true
     lines-inheritance              = abap_true
   )
 )->generate( ).
 ```
+<img width="2702" height="12120" alt="image" src="https://github.com/user-attachments/assets/7dfca2d4-e209-4d49-b600-1764399d1021" />
 
 ### 6. The Pure Database Schema (D2 Lang)
 Maps out a strict data schema using D2. Focuses only on keys, fields, and standard associations (foreign keys).
@@ -256,7 +258,8 @@ DATA(lo_renderer) = NEW zcl_vdm_diagram_d2( ).
 DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   renderer  = lo_renderer
   selection = VALUE #(
-    cds_name                       = 'ZI_SALESORDER'
+    cds_name                       = 'I_BPCurrentDefaultAddress'
+    max_allowed_level = 1
     keys                           = abap_true
     fields                         = abap_true
     base                           = abap_true
@@ -267,6 +270,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
+<img width="2006" height="1282" alt="image" src="https://github.com/user-attachments/assets/035be09d-b4dc-40fd-b49d-4126ab41f28a" />
 
 ---
 ## 🗺 Roadmap

@@ -1,6 +1,6 @@
 # Software License Agreement
 
-**Product:** VDM PlantUML Generator  
+**Product:** VDM Diagram Generator  
 **Copyright:** © 2026 Silicon Street Limited. All Rights Reserved.  
 **Licensor:** Silicon Street Limited  
 **Contact:** admin@siliconst.co.nz  
@@ -9,7 +9,7 @@
 
 ## 1. DEFINITIONS
 
-* **"Software"** refers to the VDM PlantUML Generator ABAP source code, including but not limited to classes, interfaces, and associated documentation.
+* **"Software"** refers to the VDM Diagram Generator ABAP source code, including but not limited to classes, interfaces, and associated documentation.
 * **"Internal Use"** refers to the execution of the Software within a single legal entity for the purpose of documenting that entity's own internal SAP systems.
 * **"Commercial Use"** refers to the use of the Software for financial gain, including redistribution, inclusion in commercial software packages, or providing paid consulting/documentation services to third parties.
 

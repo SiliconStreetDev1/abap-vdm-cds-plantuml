@@ -243,7 +243,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
     cds_name                       = 'I_BPCurrentDefaultAddress'
     keys                           = abap_false
     max_allowed_level = 2
-    fields                         = abap_true
+    fields                         = abap_false
     base                           = abap_true
     lines-associations             = abap_true
     lines-compositions             = abap_true
@@ -251,7 +251,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
-<img width="2702" height="12120" alt="image" src="https://github.com/user-attachments/assets/7dfca2d4-e209-4d49-b600-1764399d1021" />
+<img width="1459" height="828" alt="image" src="https://github.com/user-attachments/assets/6ff4cc3d-c926-4cd2-8408-4fe6d1e02be3" />
 
 ### 6. The Pure Database Schema (D2 Lang)
 Maps out a strict data schema using D2. Focuses only on keys, fields, and standard associations (foreign keys).

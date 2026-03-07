@@ -7,7 +7,7 @@ The **VDM Diagram Generator** is an ABAP tool designed to recursively discover a
 
 ### 🚀 What's New
 The generator has been completely re-architected to support a **multi-engine rendering model**. 
-* **Three Output Formats:** Natively supports **PlantUML**, **Mermaid.js**, and **D2 Lang**.
+* **Three Output Formats:** Natively supports **PlantUML**, **Mermaid.js**, and **D2**.
 * **Universal Configuration:** A single rendering configuration object controls layout, routing, and themes across all engines natively.
 Method pattern.
 
@@ -49,7 +49,7 @@ They all inherit the base class <ZCL_VDM_DIAGRAM_BASE>
 | :--- | :--- | :--- | :--- | :--- |
 | **PlantUML** | `zcl_vdm_diagram_plantuml` | **Enterprise Modeling** | UML Class Diagram | Orthogonal routing, horizontal/vertical layouts, and detailed field grouping. |
 | **Mermaid.js** | `zcl_vdm_diagram_mermaid` | **Documentation & Web** | UML Class Diagram | Native support in GitHub/GitLab, Azure DevOps, and Notion. Extremely lightweight. |
-| **D2 Lang** | `zcl_vdm_diagram_d2` | **Modern Presentation** | SQL Table Shapes | ELK layout engine for optimized table routing, "Sketch" mode, and modern styling. |
+| **D2** | `zcl_vdm_diagram_d2` | **Modern Presentation** | SQL Table Shapes | ELK layout engine for optimized table routing, "Sketch" mode, and modern styling. |
 ---
 
 ## ☁️ Cloud (BTP/ABAP Cloud) vs. On-Premise 
@@ -90,7 +90,7 @@ Passed to a Renderer class based on the base class <ZCL_VDM_DIAGRAM_BASE>
 | :--- | :--- |
 | **PlantUML** | `ortho`, `modern`, `polyline`, `spaced_out` |
 | **Mermaid** | `direction` (TB/LR) |
-| **D2 Lang** | `direction`, `sketch_mode`, `primary_color` |
+| **D2** | `direction`, `sketch_mode`, `primary_color` |
 
 ---
 
@@ -254,7 +254,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
 ```
 <img width="1875" height="1395" alt="image" src="https://github.com/user-attachments/assets/57942c3c-385f-4fb4-a2a2-338d336dad5e" />
 
-### 6. The Pure Database Schema (D2 Lang)
+### 6. The Pure Database Schema (D2)
 Maps out a strict data schema using D2. Focuses only on keys, fields, and standard associations (foreign keys).
 
 ```abap

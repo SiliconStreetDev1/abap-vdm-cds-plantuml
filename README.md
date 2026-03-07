@@ -97,7 +97,7 @@ Passed to a Renderer class based on the base class <ZCL_VDM_DIAGRAM_BASE>
 
 The generator provides granular control over the internal structure of the entity boxes. 
 
-* **Key Fields (`keys`):** Rendered at the top of the box with a `*` or `+` prefix to denote primary identification.
+* **Key Fields (`keys`):** Rendered at the top of the box with a `*` prefix to denote primary keys.
 * **Normal Fields (`fields`):** Standard non-key attributes listed below the keys.
 * **Association Fields (`associations_fields`):** Lists the names of defined associations within the entity box itself.
 

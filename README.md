@@ -235,7 +235,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
 Strips away noise, hiding fields and base tables. Perfect for GitHub Markdown.
 
 ```abap
-DATA(lo_renderer) = NEW zcl_vdm_diagram_d2( ).
+DATA(lo_renderer) = NEW zcl_vdm_diagram_mermaid( ).
 
 DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   renderer  = lo_renderer
@@ -251,7 +251,7 @@ DATA(diagram_code) = NEW zcl_vdm_diagram_generator(
   )
 )->generate( ).
 ```
-<img width="1459" height="828" alt="image" src="https://github.com/user-attachments/assets/6ff4cc3d-c926-4cd2-8408-4fe6d1e02be3" />
+<img width="1875" height="1395" alt="image" src="https://github.com/user-attachments/assets/57942c3c-385f-4fb4-a2a2-338d336dad5e" />
 
 ### 6. The Pure Database Schema (D2 Lang)
 Maps out a strict data schema using D2. Focuses only on keys, fields, and standard associations (foreign keys).

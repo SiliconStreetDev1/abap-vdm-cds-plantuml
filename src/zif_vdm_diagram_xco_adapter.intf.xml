@@ -10,6 +10,14 @@
     <STATE>1</STATE>
     <UNICODE>5</UNICODE>
    </VSEOINTERF>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>SEARCH_FOR_CDS</CMPNAME>
+     <SCONAME>CDS_NAMES</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>XCO CDS: Object name</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

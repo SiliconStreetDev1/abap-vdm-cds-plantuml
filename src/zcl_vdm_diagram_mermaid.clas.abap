@@ -8,7 +8,7 @@ CLASS zcl_vdm_diagram_mermaid DEFINITION PUBLIC INHERITING FROM zcl_vdm_diagram_
     " =========================================================================
     " MERMAID-SPECIFIC FORMATTING OPTIONS
     " =========================================================================
-    "! Mermaid supports native theming and directional flow controls.
+    " Mermaid supports native theming and directional flow controls.
     TYPES: BEGIN OF ty_format,
              direction TYPE string, " Layout flow: 'TB' (Top-Bottom), 'LR' (Left-Right), 'RL', 'BT'
              theme     TYPE string, " Built-in themes: 'default', 'dark', 'forest', 'neutral'
@@ -51,22 +51,25 @@ CLASS ZCL_VDM_DIAGRAM_MERMAID IMPLEMENTATION.
 
 
   METHOD zif_vdm_diagram_hooks~on_associations.
-    " Use the # (Protected) modifier to represent published associations
-    LOOP AT association_aliases INTO DATA(assoc).
-      add_text( |    # { assoc }| ).
-    ENDLOOP.
+    " Use the # (Protected) modifier to visually distinguish associations from standard fields
+    IF selection-associations_fields = abap_true.
+      LOOP AT association_aliases INTO DATA(assoc).
+        add_text( |    # { assoc }| ).
+      ENDLOOP.
+    ENDIF.
   ENDMETHOD.
 
 
   METHOD zif_vdm_diagram_hooks~on_base_elements.
     " Mermaid class blocks do not support arbitrary text dividers like PlantUML.
     " We mock headers by using stereotyped methods (<<...>>) and the package visibility modifier (~).
-    add_text( COND #( WHEN is_union_entity = abap_true THEN '    <<Union>>' ELSE '    <<Base>>' ) ).
 
     " List all the base tables or views that make up this entity
     LOOP AT base_sources INTO DATA(source).
-      add_text( |    ~{ source }| ).
+      DATA(basetext) =  COND #( WHEN is_union_entity = abap_true THEN 'Union' ELSE 'Base' ) .
+      add_text( |{ basetext } { source }| ).
     ENDLOOP.
+
   ENDMETHOD.
 
 
@@ -117,18 +120,32 @@ CLASS ZCL_VDM_DIAGRAM_MERMAID IMPLEMENTATION.
 
 
   METHOD zif_vdm_diagram_hooks~on_relationship.
-    " Map semantic relationships to Mermaid's specific edge syntax:
+    " -------------------------------------------------------------------------
+    " ARROW SYNTAX FIX: Use official Mermaid classDiagram edges
+    " -------------------------------------------------------------------------
     " *--  : Composition (Solid line with filled diamond)
-    " |..> : Inheritance (Dotted line with arrow)
+    " --|> : Inheritance (Solid line with hollow triangle)
     " -->  : Association (Solid line with standard arrow)
     DATA(arrow) = SWITCH string( relationship_type
       WHEN zcl_vdm_diagram_generator=>c_relation_type-composition THEN '*--'
-      WHEN zcl_vdm_diagram_generator=>c_relation_type-inheritance THEN '|..>'
+      WHEN zcl_vdm_diagram_generator=>c_relation_type-inheritance THEN '--|>'
       ELSE '-->' ).
 
-    " Construct the final relationship line.
-    " IMPORTANT: Mermaid requires edge labels (cardinality) to be wrapped in double quotes.
-    add_text( |  { source_alias } { arrow } { target_alias } : "{ cardinality_text }"| ).
+    " -------------------------------------------------------------------------
+    " ASSOCIATION LABEL FIX: Append alias to the edge label
+    " -------------------------------------------------------------------------
+    " Because Mermaid cannot route lines directly out of specific fields in the box,
+    " we MUST place the association alias on the line itself so the user knows
+    " which association this connection represents (e.g., "_Carrier [1..1]").
+    DATA(label) = COND string(
+      WHEN association_alias IS NOT INITIAL AND cardinality_text IS NOT INITIAL
+        THEN |{ association_alias } [{ cardinality_text }]|
+      WHEN association_alias IS NOT INITIAL
+        THEN association_alias
+      ELSE cardinality_text ).
+
+    " Construct the final relationship line. Edge labels must be wrapped in quotes.
+    add_text( |  { source_alias } { arrow } { target_alias } : "{ label }"| ).
   ENDMETHOD.
 
 

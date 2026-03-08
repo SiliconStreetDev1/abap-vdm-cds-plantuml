@@ -294,4 +294,11 @@ CLASS ZCL_VDM_DIAGRAM_XCO_ADP IMPLEMENTATION.
         ENDIF.
     ENDTRY.
   ENDMETHOD.
+
+
+  METHOD zif_vdm_diagram_xco_adapter~search_for_cds.
+
+* COMMING SOON
+
+  ENDMETHOD.
 ENDCLASS.

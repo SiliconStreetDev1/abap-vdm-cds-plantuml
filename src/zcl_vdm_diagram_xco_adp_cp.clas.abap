@@ -145,4 +145,8 @@ CLASS ZCL_VDM_DIAGRAM_XCO_ADP_CP IMPLEMENTATION.
         APPEND 'Unknown (Possible Union)' TO sources.
     ENDTRY.
   ENDMETHOD.
+
+
+  method ZIF_VDM_DIAGRAM_XCO_ADAPTER~SEARCH_FOR_CDS.
+  endmethod.
 ENDCLASS.

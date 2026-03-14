@@ -4,6 +4,21 @@ Visualize your SAP CDS Virtual Data Model (VDM) hierarchies with ease.
 
 The **VDM Diagram Generator** is an ABAP tool designed to recursively discover and visualize CDS View relationships. Supporting **ASSOCIATIONS**, **COMPOSITIONS**, and **INHERITANCE**, this tool parses your metadata via the XCO Framework to generate syntax for your preferred rendering engine. Currently it generates a String Table that you will need to export to a file.
 
+## 🖥️ Interactive Fiori UI App
+While the core engine generates raw syntax strings, we have introduced a **Full-Stack SAP Fiori Application** to make visualization instant and interactive. 
+
+**Repository:** [abap-vdm-cds-diagram-ui](https://github.com/SiliconStreetDev1/abap-vdm-cds-diagram-ui)
+
+* **Live Preview:** Instantly render PlantUML, Mermaid.js, and Graphviz (WASM) diagrams directly within your browser.
+* **Interactivity:** Drag, zoom, and pan across complex VDM webs with automatic aspect-ratio protection.
+* **Export Center:** One-click downloads for **SVG**, high-resolution **PNG** (rasterized at 2x DPI), or raw Source Code.
+* **Variant Management:** Save filtering and layout configurations to local cache for instant re-selection.
+* **Contextual Help:** Integrated help system explains every technical toggle and relationship mode.
+
+
+
+  
+---
 
 ### 🚀 What's New
 The generator has been completely re-architected to support a **multi-engine rendering model**. 

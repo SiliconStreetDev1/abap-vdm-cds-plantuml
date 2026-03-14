@@ -20,9 +20,15 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
     DATA lv_fields       TYPE abap_boolean VALUE abap_false.
     DATA lv_assoc_fields TYPE abap_boolean VALUE abap_false.
     DATA lv_custom_only  TYPE abap_boolean VALUE abap_false.
+
     DATA lv_line_assoc   TYPE abap_boolean VALUE abap_true.
     DATA lv_line_comp    TYPE abap_boolean VALUE abap_true.
     DATA lv_line_inherit TYPE abap_boolean VALUE abap_true.
+
+    DATA lv_disc_assoc   TYPE abap_boolean VALUE abap_true.
+    DATA lv_disc_comp    TYPE abap_boolean VALUE abap_true.
+    DATA lv_disc_inherit TYPE abap_boolean VALUE abap_true.
+
     DATA lv_include_str  TYPE string.
     DATA lv_exclude_str  TYPE string.
 
@@ -50,6 +56,9 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
             WHEN 'LINEASSOC'.       lv_line_assoc   = lv_bool.
             WHEN 'LINECOMP'.        lv_line_comp    = lv_bool.
             WHEN 'LINEINHERIT'.     lv_line_inherit = lv_bool.
+            WHEN 'DISCASSOC'.       lv_disc_assoc   = lv_bool.
+            WHEN 'DISCCOMP'.        lv_disc_comp    = lv_bool.
+            WHEN 'DISCINHERIT'.     lv_disc_inherit = lv_bool.
             WHEN 'INCLUDECDS'.      lv_include_str  = ls_range-range[ 1 ]-low.
             WHEN 'EXCLUDECDS'.      lv_exclude_str  = ls_range-range[ 1 ]-low.
           ENDCASE.
@@ -98,7 +107,7 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
       WHEN OTHERS.     lo_renderer = NEW zcl_vdm_diagram_mermaid( ).  ls_diagram-FileExtension = '.mmd'.
     ENDCASE.
 
-    " 7. GENERATION ENGINE (Fully mapped to your API)
+    " 7. GENERATION ENGINE (Fully mapped to API)
     TRY.
         DATA(lo_generator) = NEW zcl_vdm_diagram_generator(
           renderer  = lo_renderer
@@ -111,6 +120,7 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
             associations_fields      = lv_assoc_fields
             custom_developments_only = lv_custom_only
             lines                    = VALUE #( associations = lv_line_assoc compositions = lv_line_comp inheritance = lv_line_inherit )
+            discovery                = VALUE #( associations = lv_disc_assoc compositions = lv_disc_comp inheritance = lv_disc_inherit )
             include_cds              = lt_include_xco
             exclude_cds              = lt_exclude_xco
           )

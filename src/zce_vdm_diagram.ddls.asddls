@@ -6,18 +6,25 @@ define custom entity ZCE_VDM_DIAGRAM
   key CdsName         : sxco_cds_object_name;
   key RendererEngine  : abap.char(20);
 
-      //=== NEW ADVANCED CONFIGURATION PARAMETERS ===
+      //=== ADVANCED CONFIGURATION PARAMETERS ===
       MaxLevel        : abap.int4;
       ShowBase        : abap_boolean;
       ShowKeys        : abap_boolean;
       ShowFields      : abap_boolean;
       ShowAssocFields : abap_boolean;
       CustomDevOnly   : abap_boolean;
+      
+      // Visual Lines
       LineAssoc       : abap_boolean;
       LineComp        : abap_boolean;
       LineInherit     : abap_boolean;
 
-      //Comma-separated strings for the whitelists/blacklists
+      // Logical Discovery (Fetch without drawing lines)
+      DiscAssoc       : abap_boolean;
+      DiscComp        : abap_boolean;
+      DiscInherit     : abap_boolean;
+
+      // Comma-separated strings for the whitelists/blacklists
       IncludeCds      : abap.string(0);
       ExcludeCds      : abap.string(0);
 

@@ -399,13 +399,13 @@ CLASS ZCL_VDM_DIAGRAM_GENERATOR IMPLEMENTATION.
   METHOD generate_as_string.
 
     "Execute the standard generation engine (returns a table of strings)
+
     DATA(lt_code) = me->generate( ).
 
     " Compress into a single payload using the classic ABAP statement.
 
-    CONCATENATE LINES OF lt_code
-      INTO rv_diagram_string
-      SEPARATED BY cl_abap_char_utilities=>newline.
+    rv_diagram_string = concat_lines_of( table = lt_code
+                                       sep   = cl_abap_char_utilities=>newline ).
 
   ENDMETHOD.
 ENDCLASS.

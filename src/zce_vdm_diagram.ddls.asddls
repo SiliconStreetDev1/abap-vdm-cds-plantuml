@@ -31,4 +31,7 @@ define custom entity ZCE_VDM_DIAGRAM
       // Outputs
       FileExtension   : abap.char(10);
       DiagramPayload  : abap.string(0);
+      
+      @UI.hidden: true
+      FormatConfig           : abap.string(0); 
 }

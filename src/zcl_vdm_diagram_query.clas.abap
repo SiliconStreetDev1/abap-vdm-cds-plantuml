@@ -1,8 +1,8 @@
 "! © 2026 Silicon Street Limited. All Rights Reserved.
 "!
 "! PURPOSE: RAP Query Provider for the VDM Diagram Generator.
-"! Extracts complex UI filters (including tokens and booleans), maps them
-"! to the generation engine, and returns the constructed payload to the UI.
+"! Extracts UI filters, dynamically deserializes JSON formatting based on the
+"! selected engine, and passes native ABAP structures to the renderer constructors.
 CLASS zcl_vdm_diagram_query DEFINITION
   PUBLIC
   FINAL
@@ -20,15 +20,13 @@ ENDCLASS.
 CLASS zcl_vdm_diagram_query IMPLEMENTATION.
 
   METHOD if_rap_query_provider~select.
-    " -------------------------------------------------------------------------
-    " 0. DATA DECLARATIONS (Clean ABAP - No Hungarian Notation)
-    " -------------------------------------------------------------------------
     DATA diagrams TYPE STANDARD TABLE OF zce_vdm_diagram WITH DEFAULT KEY.
     DATA diagram  TYPE zce_vdm_diagram.
 
     " Primary entity filters
-    DATA cds_filter      TYPE string.
-    DATA engine_key      TYPE string.
+    DATA cds_filter         TYPE string.
+    DATA engine_key         TYPE string.
+    DATA format_config_json TYPE string. " Captures the JSON payload from the UI
 
     " Default configuration variables
     DATA max_level       TYPE i VALUE 1.
@@ -60,43 +58,39 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
 
     " -------------------------------------------------------------------------
     " 2. EXTRACT ALL FILTERS SAFELY
-    " Iterate through the OData filter ranges and map them to our local state
     " -------------------------------------------------------------------------
     TRY.
         DATA(filter_ranges) = io_request->get_filter( )->get_as_ranges( ).
 
         LOOP AT filter_ranges INTO DATA(filter_range).
-          " Normalize boolean handling since OData can pass 'true', 'TRUE', or 'X'
           DATA(raw_value) = to_upper( CONV string( filter_range-range[ 1 ]-low ) ).
           DATA(is_true)   = xsdbool( raw_value = 'TRUE' OR raw_value = 'X' ).
 
           CASE to_upper( filter_range-name ).
-            WHEN 'CDSNAME'.         cds_filter   = filter_range-range[ 1 ]-low.
-            WHEN 'RENDERERENGINE'.  engine_key   = filter_range-range[ 1 ]-low.
-            WHEN 'MAXLEVEL'.        max_level    = filter_range-range[ 1 ]-low.
-            WHEN 'SHOWBASE'.        show_base    = is_true.
-            WHEN 'SHOWKEYS'.        show_keys    = is_true.
-            WHEN 'SHOWFIELDS'.      show_fields  = is_true.
-            WHEN 'SHOWASSOCFIELDS'. assoc_fields = is_true.
-            WHEN 'CUSTOMDEVONLY'.   custom_only  = is_true.
-            WHEN 'LINEASSOC'.       line_assoc   = is_true.
-            WHEN 'LINECOMP'.        line_comp    = is_true.
-            WHEN 'LINEINHERIT'.     line_inherit = is_true.
-            WHEN 'DISCASSOC'.       disc_assoc   = is_true.
-            WHEN 'DISCCOMP'.        disc_comp    = is_true.
-            WHEN 'DISCINHERIT'.     disc_inherit = is_true.
-            WHEN 'INCLUDECDS'.      include_string = filter_range-range[ 1 ]-low.
-            WHEN 'EXCLUDECDS'.      exclude_string = filter_range-range[ 1 ]-low.
+            WHEN 'CDSNAME'.         cds_filter         = filter_range-range[ 1 ]-low.
+            WHEN 'RENDERERENGINE'.  engine_key         = filter_range-range[ 1 ]-low.
+            WHEN 'FORMATCONFIG'.    format_config_json = filter_range-range[ 1 ]-low. " Capture JSON string
+            WHEN 'MAXLEVEL'.        max_level          = filter_range-range[ 1 ]-low.
+            WHEN 'SHOWBASE'.        show_base          = is_true.
+            WHEN 'SHOWKEYS'.        show_keys          = is_true.
+            WHEN 'SHOWFIELDS'.      show_fields        = is_true.
+            WHEN 'SHOWASSOCFIELDS'. assoc_fields       = is_true.
+            WHEN 'CUSTOMDEVONLY'.   custom_only        = is_true.
+            WHEN 'LINEASSOC'.       line_assoc         = is_true.
+            WHEN 'LINECOMP'.        line_comp          = is_true.
+            WHEN 'LINEINHERIT'.     line_inherit       = is_true.
+            WHEN 'DISCASSOC'.       disc_assoc         = is_true.
+            WHEN 'DISCCOMP'.        disc_comp          = is_true.
+            WHEN 'DISCINHERIT'.     disc_inherit       = is_true.
+            WHEN 'INCLUDECDS'.      include_string     = filter_range-range[ 1 ]-low.
+            WHEN 'EXCLUDECDS'.      exclude_string     = filter_range-range[ 1 ]-low.
           ENDCASE.
         ENDLOOP.
       CATCH cx_root.
-        " If filters are missing or malformed, the defaults defined above will safely apply
     ENDTRY.
 
     " -------------------------------------------------------------------------
     " 3. HANDLE EXITS & PAGING TRAPS
-    " If there's no root CDS view to analyze, or if UI5 is paginating past the
-    " first record (we only ever return 1 payload), exit early.
     " -------------------------------------------------------------------------
     IF cds_filter IS INITIAL OR offset > 0.
       IF io_request->is_data_requested( ).
@@ -110,15 +104,13 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
 
     " -------------------------------------------------------------------------
     " 4. POST-VALIDATION MAP
-    " Prepare the entity and ensure the target CDS name is uppercase for XCO
     " -------------------------------------------------------------------------
     diagram-cdsname        = cds_filter.
     diagram-rendererengine = engine_key.
     DATA(cds_name_xco)     = to_upper( cds_filter ).
 
     " -------------------------------------------------------------------------
-    " 5. PARSE COMMA-SEPARATED WHITELIST/BLACKLIST INTO TABLES
-    " Converts standard strings into XCO-compatible object name tables
+    " 5. PARSE COMMA-SEPARATED WHITELIST/BLACKLIST
     " -------------------------------------------------------------------------
     DATA include_list TYPE sxco_t_cds_object_names.
     DATA exclude_list TYPE sxco_t_cds_object_names.
@@ -134,29 +126,48 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
     ENDIF.
 
     " -------------------------------------------------------------------------
-    " 6. STRATEGY FACTORY
-    " Instantiate the correct syntax generator based on the UI dropdown
+    " 6. STRATEGY FACTORY & DYNAMIC DESERIALIZATION
+    " Instantiate the correct engine and pass the JSON payload directly into
+    " the renderer's specific ABAP format structure without modifying the renderers.
     " -------------------------------------------------------------------------
     DATA renderer TYPE REF TO zcl_vdm_diagram_base.
 
     CASE to_upper( engine_key ).
       WHEN 'PLANTUML'.
-        renderer = NEW zcl_vdm_diagram_plantuml( ).
+        DATA plantuml_format TYPE zcl_vdm_diagram_plantuml=>ty_format.
+        IF format_config_json IS NOT INITIAL.
+          /ui2/cl_json=>deserialize( EXPORTING json = format_config_json CHANGING data = plantuml_format ).
+        ENDIF.
+        renderer = NEW zcl_vdm_diagram_plantuml( format = plantuml_format ).
         diagram-fileextension = '.puml'.
+
       WHEN 'GRAPHVIZ'.
-        renderer = NEW zcl_vdm_diagram_graphviz( ).
+        DATA graphviz_format TYPE zcl_vdm_diagram_graphviz=>ty_format.
+        IF format_config_json IS NOT INITIAL.
+          /ui2/cl_json=>deserialize( EXPORTING json = format_config_json CHANGING data = graphviz_format ).
+        ENDIF.
+        renderer = NEW zcl_vdm_diagram_graphviz( format = graphviz_format ).
         diagram-fileextension = '.dot'.
+
       WHEN 'D2'.
-        renderer = NEW zcl_vdm_diagram_d2( ).
+        DATA d2_format TYPE zcl_vdm_diagram_d2=>ty_format.
+        IF format_config_json IS NOT INITIAL.
+          /ui2/cl_json=>deserialize( EXPORTING json = format_config_json CHANGING data = d2_format ).
+        ENDIF.
+        renderer = NEW zcl_vdm_diagram_d2( format = d2_format ).
         diagram-fileextension = '.d2'.
-      WHEN OTHERS.
-        renderer = NEW zcl_vdm_diagram_mermaid( ).
+
+      WHEN OTHERS. " MERMAID as default
+        DATA mermaid_format TYPE zcl_vdm_diagram_mermaid=>ty_format.
+        IF format_config_json IS NOT INITIAL.
+          /ui2/cl_json=>deserialize( EXPORTING json = format_config_json CHANGING data = mermaid_format ).
+        ENDIF.
+        renderer = NEW zcl_vdm_diagram_mermaid( format = mermaid_format ).
         diagram-fileextension = '.mmd'.
     ENDCASE.
 
     " -------------------------------------------------------------------------
     " 7. GENERATION ENGINE EXECUTOR
-    " Map all parsed UI states into the generator's selection parameters
     " -------------------------------------------------------------------------
     TRY.
         DATA(generator) = NEW zcl_vdm_diagram_generator(
@@ -180,11 +191,9 @@ CLASS zcl_vdm_diagram_query IMPLEMENTATION.
           )
         ).
 
-        " Execute the deep analysis and get the formatted syntax
         diagram-diagrampayload = generator->generate_as_string( ).
 
       CATCH cx_root INTO DATA(exception).
-        " Graceful error handling: pass the backend dump text to the UI safely
         diagram-diagrampayload = |Error: { exception->get_text( ) }|.
     ENDTRY.
 

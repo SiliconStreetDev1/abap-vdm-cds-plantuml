@@ -161,7 +161,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_VDM_DIAGRAM_GENERATOR IMPLEMENTATION.
+CLASS zcl_vdm_diagram_generator IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -293,7 +293,10 @@ CLASS ZCL_VDM_DIAGRAM_GENERATOR IMPLEMENTATION.
     TRY.
         CREATE OBJECT xco_adapter TYPE (class_name).
       CATCH cx_sy_create_object_error.
-        " Handle missing adapter exception if needed
+        TRY.
+            CREATE OBJECT xco_adapter TYPE ('ZCL_VDM_DIAGRAM_XCO_ADP_CP'). " Fallback to Cloud adapter, even in On-Premise ( Maybe someone deleted it ?).
+          CATCH cx_sy_create_object_error.
+        ENDTRY.
     ENDTRY.
   ENDMETHOD.
 

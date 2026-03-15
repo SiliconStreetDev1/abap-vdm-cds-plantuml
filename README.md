@@ -15,7 +15,7 @@ While the core engine generates raw syntax strings, we have introduced a **Full-
 * **Variant Management:** Save filtering and layout configurations to local cache for instant re-selection.
 * **Contextual Help:** Integrated help system explains every technical toggle and relationship mode.
 
-  ![Image](https://github.com/user-attachments/assets/8410c470-f37d-424e-9e8a-8be6392038f2)
+<img width="2113" height="1824" alt="Image" src="https://github.com/user-attachments/assets/4398560e-8ced-4463-8471-5f1ffe05b4a6" />
 ---
 
 ### 🚀 What's New

@@ -31,10 +31,39 @@ Method pattern.
 
 ## 📋 Compatibility & Requirements
 
-* **Primary Support:** **SAP S/4HANA 2023** and higher.
+* **Primary Support:** **SAP S/4HANA 2023** and higher
 * **Legacy Support (S/4HANA 2022):** The tool may function on 2022, but it is **not fully supported**.
     * *Note:* The XCO Framework underwent significant API changes between 2022 and 2023. You may encounter "Method Not Found" exceptions or incorrect cardinality mapping on older releases.
 * **XCO Framework:** Standard availability in modern S/4HANA and BTP is required.
+
+### ⚠️ ABAP Cloud Compatibility & Limitations
+
+This project is **largely compatible with ABAP Cloud** and follows the Cloud
+language version and released‑API restrictions.
+
+An additional adapter file is included for **on‑premise systems** to access
+repository‑level metadata.
+
+When deploying to **ABAP Cloud**, the following class **must be deleted**:
+
+- `**ZCL_VDM_DIAGRAM_XCO_ADP**`
+
+This class relies on APIs and tables that are intentionally unavailable in ABAP Cloud.
+All remaining sources are Cloud‑compliant.
+
+#### ☁️ Functional Differences in ABAP Cloud
+
+Due to platform restrictions, the ABAP Cloud variant is **not as feature‑rich**
+as the on‑premise version.
+
+The following limitations apply in ABAP Cloud:
+
+- CDS view names are displayed **in uppercase only**
+- **UNION** structures cannot be detected or visualized
+- **JOIN** structures cannot be detected or visualized
+
+These limitations are a direct consequence of the restricted metadata access
+model in ABAP Cloud and are not implementation defects.
 
 ---
 
